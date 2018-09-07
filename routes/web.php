@@ -121,6 +121,10 @@ Route::get('crawl-tshirt',[
 ]);
 Route::get('down-image',[
 	'as'=>'down-image',
+	'uses'=>'TshirtController@loadDownImage'
+]);
+Route::get('save-image',[
+	'as'=>'save-image',
 	'uses'=>'TshirtController@downImage'
 ]);
 

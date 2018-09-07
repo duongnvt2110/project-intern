@@ -32,7 +32,7 @@ class ExportCsvController extends Controller
 		// create path
 		date_default_timezone_set('Asia/Ho_Chi_Minh');
 		$today = date("Y-m-d-H-i-s"); 
-		$file_name='export/export-file-csv-'.$today.'.xlsx';
+		$file_name='export/export-file-csv-'.$today.'.csv';
 		$path=base_path($file_name);
 		// print_r($path);
 		// end create path
@@ -80,7 +80,7 @@ class ExportCsvController extends Controller
 		];
 		// echo json_encode($data);
 		// write excel
-		$export_file->WriteEstyExcel($data,$path);
+		$export_file->writeEstyExcel($data,$path);
 	}
 }
 
@@ -93,7 +93,7 @@ public function ExportCsvTshirtat($req){
 		// create path
 		date_default_timezone_set('Asia/Ho_Chi_Minh');
 		$today = date("Y-m-d-H-i-s"); 
-		$file_name='export/export-file-csv-'.$today.'.xlsx';
+		$file_name='export/export-file-csv-'.$today.'.csv';
 		$path=base_path($file_name);
 		// print_r($path);
 		// end create path
@@ -142,7 +142,7 @@ public function getTshirtat($id,$path){
 	];
 		// echo json_encode($data);
 		// write excel
-	$export_file->WriteTshirtatExcel($data,$path);
+	$export_file->writeTshirtatExcel($data,$path);
 }
 
 }

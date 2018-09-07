@@ -9,14 +9,15 @@ use App\esty_product;
 
 class exportExcel{
 
-	public function WriteEstyExcel($data,$path){
+	public function writeEstyExcel($data,$path){
 		ini_set('max_execution_time', 1800);
 		if(!file_exists($path))
 		{
-			$this->create_excel($path);
+			$this->createExcel($path);
+			$this->writeFirstRow($path);
 			// chmod($path,777);
 		}
-		$text = new \PhpOffice\PhpSpreadsheet\Reader\Xlsx();
+		$text = new \PhpOffice\PhpSpreadsheet\Reader\Csv();
 		$objPHPExcel = $text->load($path);
 		$objPHPExcel->setActiveSheetIndex(0);
 		$row = $objPHPExcel->getActiveSheet()->getHighestRow()+1;
@@ -197,7 +198,7 @@ class exportExcel{
 
 			}
 		}
-		$objWriter = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($objPHPExcel);
+		$objWriter = new \PhpOffice\PhpSpreadsheet\Writer\Csv($objPHPExcel);
 		$objWriter->save($path);
 	}
 
@@ -208,14 +209,15 @@ class exportExcel{
 
 	// wite tshiart
 
-	public function WriteTshirtatExcel($data,$path){
+	public function writeTshirtatExcel($data,$path){
 		ini_set('max_execution_time', 1800);
 		if(!file_exists($path))
 		{
-			$this->create_excel($path);
+			$this->createExcel($path);
+			$this->writeFirstRow($path);
 			// chmod($path,777);
 		}
-		$text = new \PhpOffice\PhpSpreadsheet\Reader\Xlsx();
+		$text = new \PhpOffice\PhpSpreadsheet\Reader\Csv();
 		$objPHPExcel = $text->load($path);
 		$objPHPExcel->setActiveSheetIndex(0);
 		$row = $objPHPExcel->getActiveSheet()->getHighestRow()+1;
@@ -399,7 +401,7 @@ class exportExcel{
 			}
 		}
 		
-		$objWriter = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($objPHPExcel);
+		$objWriter = new \PhpOffice\PhpSpreadsheet\Writer\Csv($objPHPExcel);
 		$objWriter->save($path);
 	}
 
@@ -421,47 +423,138 @@ class exportExcel{
 
 		return $product_type;
 	}
-	public function downImage($data){
-		$i=0;
-		print_r($data['title']);
-		foreach ($data['variant'] as $data) {
-			foreach ($data as $data) {
-				foreach ($data as $value) {
-					// print_r($value);
-					print_r('<br>');
-					print_r('<br>');
-						// print_r($i);
-						print_r('<br');
-						if(preg_match('/(\d+)\-(\d+)-(\w+).+/',$value,$name)){
-							$name=$name[0];
-						}else{
-							preg_match('/([a-zA-Z0-9]+)\-([a-zA-Z0-9]+)\-([a-zA-Z0-9]+)\-([a-zA-Z0-9]+).+/',$value,$name);
-							$name=$name[0];
-						}
-						
-						$image=imagecreatefromjpeg('https:'.$value);
-					
-						$s=imagejpeg($image,base_path('/image/'.$name));
-						if($s==true){
-							print_r('1');
-							print_r($name);
-							print_r('<br>');	
-						}else{
-							print_r('2');
-							print_r($value);
-							print_r('<br>');
-						}
-						$i=$i+1;
-				}
-			}
+
+	public function downImage($url_img){
+		if(preg_match('/(\d+)\-(\d+)-(\w+).+/',$url_img,$name)){
+			$name=$name[0];
+		}else{
+			preg_match('/([a-zA-Z0-9]+)\-([a-zA-Z0-9]+)\-([a-zA-Z0-9]+)\-([a-zA-Z0-9]+).+/',$url_img,$name);
+			$name=$name[0];
 		}
+		ini_set('max_execution_time',1800);
+		$image=@imagecreatefromjpeg('https:'.$url_img);
+		if($image){
+			imagejpeg($image,base_path('/image/'.$name));
+			print_r('<br>');
+			print_r($name);
+			print_r('<br>');
+		}else{
+			print_r('<br>');
+			print_r('error http request '.$name);
+			print_r('<br>');
+		}
+		
 	}
-	public function create_excel($path){
+
+	public function writeFirstRow($path){
+		$text = new \PhpOffice\PhpSpreadsheet\Reader\Csv();
+		$objPHPExcel = $text->load($path);
+		$objPHPExcel->setActiveSheetIndex(0);
+		$row = $objPHPExcel->getActiveSheet()->getHighestRow();
+		$i=$row;
+
+		$objPHPExcel->getActiveSheet()
+	// Row handle
+		->setCellValue('A'.$i,'Handle')
+	// Row title
+		->setCellValue('B'.$i,'Title')
+	// Row title
+	// ->setCellValue('AU'.$i,$data['asin'])
+	// Row title
+		->setCellValue('C'.$i,'Body (HTML)')
+	// Row Vendor
+		->setCellValue('D'.$i,'Vendor')
+	//Row type
+		->setCellValue('E'.$i,'Type')
+	//Row tags
+		->setCellValue('F'.$i,'Tags')
+	//Row Published
+		->setCellValue('G'.$i,'Published')
+	//Row variants gram
+		->setCellValue('H'.$i,'Option1 Name')
+		->setCellValue('I'.$i,'Option1 Value')
+		->setCellValue('J'.$i,'Option2 Name')
+		->setCellValue('K'.$i,'Option2 Value')
+		
+		->setCellValue('L'.$i,'Option3 Name')
+		->setCellValue('M'.$i,'Option3 Value')
+		//Row variants sku
+		->setCellValue('N'.$i,'Variant SKU')
+		->setCellValue('O'.$i,'Variant Grams')
+	//Row variants tracker
+		->setCellValue('P'.$i,'Variant Inventory Tracker')
+	//Row vaiants quantity
+		->setCellValue('Q'.$i,'Variant Inventory Qty')
+
+
+	// Row variants Policy
+		->setCellValue('R'.$i,'Variant Inventory Policy')
+	// Row  variants servicefullment
+		->setCellValue('S'.$i,'Variant Fulfillment Service')
+	// Row Variant Price
+		->setCellValue('T'.$i,'Variant Price')
+	//Row Variant Compare At Price
+		->setCellValue('U'.$i,'Variant Compare At Price')
+	//Row Variant Requires Shipping
+		->setCellValue('V'.$i,'Variant Requires Shipping')
+	//Row Variant Taxable
+		->setCellValue('W'.$i,'Variant Taxable')
+	//Row Variant Barcode
+		->setCellValue('X'.$i,'Variant Barcode')
+	//Row Image Src
+		->setCellValue('Y'.$i,'Image Src')
+	//Row Image Position
+		->setCellValue('Z'.$i,'Image Position')
+	//Row Image Alt Text
+		->setCellValue('AA'.$i,'Image Alt Text')
+	//Row Gift Card
+		->setCellValue('AB'.$i,'Gift Card')
+	//Row SEO Title
+		->setCellValue('AC'.$i,'SEO Title')
+	//Row SEO Description
+		->setCellValue('AD'.$i,'SEO Description')
+	//Row Google Shopping / Google Product Category	
+		->setCellValue('AE'.$i,'Google Shopping / Google Product Category')
+	//Row Google Shopping / Gender
+		->setCellValue('AF'.$i,'Google Shopping / Gender')
+	//Row Google Shopping / Age Group
+		->setCellValue('AG'.$i,'Google Shopping / Age Group')
+	//Row Google Shopping / MPN
+		->setCellValue('AH'.$i,'Google Shopping / Age Group')
+	//Row Google Shopping / AdWords Grouping
+		->setCellValue('AI'.$i,'Google Shopping / MPN')
+	//Row Google Shopping / AdWords Labels
+		->setCellValue('AJ'.$i,'Google Shopping / AdWords Grouping')
+	//Row Google Shopping / Condition
+		->setCellValue('AK'.$i,'Google Shopping / AdWords Labels')
+	//Row Google Shopping / Custom Product
+		->setCellValue('AL'.$i,'Google Shopping / Condition')
+	//Row Google Shopping / Custom Label 0
+
+		->setCellValue('AM'.$i,'Google Shopping / Custom Product')
+	//Row Google Shopping / Custom Label 1
+		->setCellValue('AN'.$i,'Google Shopping / Custom Label 0')
+	//Row Google Shopping / Custom Label 2
+		->setCellValue('AO'.$i,'Google Shopping / Custom Label 1')
+	//Row Google Shopping / Custom Label 3
+		->setCellValue('AP'.$i,'Google Shopping / Custom Label 2')
+	//Row Google Shopping / Custom Label 4
+
+	//Variant Image
+		->setCellValue('AQ'.$i,'Google Shopping / Custom Label 3')
+		->setCellValue('AR'.$i,'Variant Image')
+	// Row Variant Weight Unit
+		->setCellValue('AS'.$i,'Variant Weight Unit')
+	//  Variant Tax Code
+		->setCellValue('AT'.$i,'Variant Tax Code');
+	}
+
+	public function createExcel($path){
     // date_default_timezone_set('Asia/Ho_Chi_Minh');
     // $today = date("d-m-Y"); 
     // $ramdom=rand(1,10000);
 		$phpExcel = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
-		$writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($phpExcel);
+		$writer = new \PhpOffice\PhpSpreadsheet\Writer\Csv($phpExcel);
     // $file_name='D:/test/'.$path.'.xlsx';
     // print_r($path);
 		$writer->save($path);

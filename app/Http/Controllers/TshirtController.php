@@ -19,26 +19,28 @@ class TshirtController extends Controller
 		session::put('click','t-shirt');
 		return response()->view('site.tshirt',compact('tshirtatProduct'));
 	}
+	public function loadDownImage(){
+		return view('site.down_image');
+	}
 	public function downImage(){
 		$export_file=new exportExcel();
-
 		// get value
 		$product=tshirt_product::all();
 		// retrieve value and write export
-		$data=array();
+		$img_src=array();
+		$i=0;
 		foreach ($product as $value) {
-				// 	
-			$data=[
-				'title'=>$value['title'],
-			// 'option_title1'=>$value['option_title1'],
-			// 'option_value1'=>json_decode($value['option_value1']),
-			// 'option_title2'=>$value['option_title2'],
-			// 'option_value2'=>json_decode($value['option_value2']),
-			// 'option_title3'=>$value['option_title3'],
-			// 'option_value3'=>json_decode($value['option_value3']),
-			'variant'=>json_decode($value['variant'])];
-			$export_file->downImage($data);
-	}
-	
+			foreach (json_decode($value['variant']) as $data) {
+				foreach ($data as $data) {
+					foreach ($data as $value) {
+							// print_r($value);
+						$export_file->downImage($value);
+						// $img_src[$i]=$value;
+						// $i=$i+1;
+
+					}
+				}
+			}
+		}
 	}
 }
