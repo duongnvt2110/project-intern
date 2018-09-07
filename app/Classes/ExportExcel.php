@@ -341,9 +341,14 @@ class exportExcel{
 									for ($l = 0; $l <count($value) ; $l++) {
 										if(isset($value[$l][$index1][$index2])){
 											$imgVariant=$value[$l][$index1][$index2];
-											preg_match('/(\d+)\-(\d+)-(\w+).+/',$imgVariant,$name);
+											if(preg_match('/(\d+)\-(\d+)-(\w+).+/',$imgVariant,$name)){
+												$name=$name[0];
+											}else{
+												preg_match('/([a-zA-Z0-9]+)\-([a-zA-Z0-9]+)\-([a-zA-Z0-9]+)\-([a-zA-Z0-9]+).+/',$imgVariant,$name);
+												$name=$name[0];
+											}
 											$url_shopify='https://cdn.shopify.com/s/files/1/0046/5784/0243/files/';
-											$img_src=$url_shopify.$name[0];
+											$img_src=$url_shopify.$name;
 											$objPHPExcel->getActiveSheet()
 											->setCellValue('A'.$n,$data['handle'].'-'.$this->convertProducType($data['option_value1'][$k]))
 											->setCellValue('E'.$n,$this->convertProducType($data['option_value1'][$k]))
