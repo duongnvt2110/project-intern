@@ -418,7 +418,8 @@ class exportExcel{
 	}
 	public function downImage($data){
 		$i=0;
-		foreach ($data as $data) {
+		print_r($data['title']);
+		foreach ($data['variant'] as $data) {
 			foreach ($data as $data) {
 				foreach ($data as $value) {
 					// print_r($value);
