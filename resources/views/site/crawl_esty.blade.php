@@ -24,6 +24,7 @@
             dataType:"text",
             success:function(data){
             	$('body').html(data);
+              console.log('text');
             	console.log('success');
             },
             error:function(){
