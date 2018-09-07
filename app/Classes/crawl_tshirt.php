@@ -6,7 +6,7 @@ use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Pagination\Paginator;
 use App\Classes\mycurl;
 use App\product;
-use App\esty_product;
+use App\tshirt_product;
 set_time_limit(0);
 ini_set('memory_limit', '-1');
 
@@ -165,7 +165,7 @@ class crawl_tshirt{
 	print_r('<br>');
 // exit;print_r($data);
 
-	// $this->excute($data);
+	$this->excuteDB($data);
 }
 
 public function excuteDB($data){
@@ -177,7 +177,7 @@ public function excuteDB($data){
 		$url=$value['url_product'];
 	}
 	// print_r($title);
-	if(!empty($title)){
+	if(!empty($url)){
 		$this->updateDB($data);
 		print_r('update success');
 		print_r('<br>');
@@ -450,8 +450,9 @@ public function getOptionValue3($xpath){
 
 public function writeDB($data){
 
-	tshirt_product::insert(['category'=>$data['category'],
-		'url_img'=>$data['image_url'],
+	tshirt_product::insert([
+		'category'=>$data['category'],
+		'url_img'=>$data['url_img'],
 		'title'=>$data['title'],
 		'prices'=>$data['prices'],
 		'url_product'=>$data['url_product'],
@@ -470,19 +471,20 @@ public function writeDB($data){
 public function updateDB($data){
 
 	tshirt_product::where('url_product',$data['url_product'])
-	->update(['vendor'=>$data['vendor'],
-		'url_img'=>$data['image_url'],
+	->update([
+		'category'=>$data['category'],
+		'url_img'=>$data['url_img'],
 		'title'=>$data['title'],
-		'seller_name'=>$data['seller_name'],
 		'prices'=>$data['prices'],
-		'feedback'=>$data['feedback'],
-		'favorited'=>$data['favorited'],
 		'url_product'=>$data['url_product'],
 		'date_crawled'=>$data['day_crawled'],
 		'option_title1'=>$data['option_title1'],
 		'option_value1'=>$data['option_value1'],
 		'option_title2'=>$data['option_title2'],
 		'option_value2'=>$data['option_value2'],
+		'option_title3'=>$data['option_title3'],
+		'option_value3'=>$data['option_value3'],
+		'variant'=>$data['variant'],
 		'description'=>$data['description'],
 		'is_export'=>false]);
 

@@ -8,3 +8,7 @@
 .etsy.com	TRUE	/	TRUE	1570479199	fve	1536292498.0
 .etsy.com	TRUE	/	FALSE	0	etsy_guest_pass	sp_FvSJ7g2L3k-30s1G-uGPIUN1jZACC6InfJsHoaqUMJavo2FoGAA..
 .etsy.com	TRUE	/	FALSE	0	last_browse_page	https%3A%2F%2Fwww.etsy.com%2Fshop%2FDugoutMugs
+#HttpOnly_.t-shirtat.com	TRUE	/	FALSE	1567839536	__cfduid	d80fe356ddbc65acf6342a99f05544ea41536303536
+#HttpOnly_checkout.t-shirtat.com	FALSE	/	FALSE	1536389958	CFID	51636221
+#HttpOnly_checkout.t-shirtat.com	FALSE	/	FALSE	1536389958	CFTOKEN	ca3daecbd2ac4a4f-FC20B031-FDCA-80E8-07EBC658439CE428
+#HttpOnly_checkout.t-shirtat.com	FALSE	/	FALSE	0	BNI_oreo	000000000000000000000000a802560a00000000

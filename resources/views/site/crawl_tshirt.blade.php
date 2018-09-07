@@ -11,7 +11,7 @@
 <body>
 	<script type="text/javascript">
 		$(document).ready(function(){
-		for(let i=0;i<10;i++){
+		for(let i=0;i<1;i++){
 		  $.ajaxSetup({
             headers: {
               'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')

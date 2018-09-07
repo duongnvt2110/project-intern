@@ -1,11 +1,11 @@
 <?php
+
 namespace App\Classes;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Pagination\Paginator;
 use App\product;
 use App\esty_product;
-
 
 class exportExcel{
 
@@ -418,68 +418,29 @@ class exportExcel{
 	}
 	public function downImage($data){
 		$i=0;
-		// for($k=0;$k<count($data['option_value1']);$k++){
-		// 	if(!empty($data['option_value2']))
-		// 	{
-		// 		if(!empty($data['option_value3'])){	
-
-		// 			if(count($data['option_value2'])>count($data['option_value3'])){
-		// 				$max=count($data['option_value2']);
-		// 				$min=count($data['option_value3']);
-		// 			}else{
-		// 				$max=count($data['option_value3']);
-		// 				$min=count($data['option_value2']);
-		// 			}
-
-		// 			for($j=0;$j<$max;$j++)
-		// 			{
-		// 				for($x=0;$x<=$min;$x++){
-		// 					if(isset($data['option_value2'][$j])){
-		// 						if(isset($data['option_value3'][$x+1])){
-		// 							$index1=$data['option_value1'][$k];
-		// 							$index2=$data['option_value2'][$j];
-		// 							$value=json_decode(json_encode($data['variant']), True);
-		// 							for ($l = 0; $l <count($value) ; $l++) {
-		// 								if(isset($value[$l][$index1][$index2])){
-		// 									$imgVariant=$value[$l][$index1][$index2];
-		// 									print_r('<br>');
-		// 									preg_match('/(\d+)\-(\d+)-(\w+).+/',$imgVariant,$name);
-		// 									$image=imagecreatefromjpeg('https:'.$imgVariant);
-		// 									imagejpeg($image,base_path('/image/'.$name[0]));
-		// 								}
-		// 							}
-									
-		// 						}
-		// 					}
-
-		// 				}
-		// 			}
-		// 		}
-		// 	}
-		// }
 		foreach ($data['variant'] as $data) {
 			foreach ($data as $data) {
 				foreach ($data as $value) {
 					print_r($value);
 					print_r('<br>');
-					// print_r('<br>');
-					// 	print_r($i);
-					// 	print_r('<br');
-					// 	preg_match('/(\d+)\-(\d+)-(\w+).+/',$value,$name);
+					print_r('<br>');
+						// print_r($i);
+						print_r('<br');
+						preg_match('/(\d+)\-(\d+)-(\w+).+/',$value,$name);
 						
-					// 	$image=imagecreatefromjpeg('https:'.$value);
+						$image=imagecreatefromjpeg('https:'.$value);
 					
-					// 	$s=imagejpeg($image,base_path('/image/'.$name[0]));
-					// 	if($s==true){
-					// 		print_r('1');
-					// 		print_r($name[0]);
-					// 		print_r('<br>');	
-					// 	}else{
-					// 		print_r('2');
-					// 		print_r($value);
-					// 		print_r('<br>');
-					// 	}
-					// 	$i=$i+1;
+						$s=imagejpeg($image,base_path('/image/'.$name[0]));
+						if($s==true){
+							print_r('1');
+							print_r($name[0]);
+							print_r('<br>');	
+						}else{
+							print_r('2');
+							print_r($value);
+							print_r('<br>');
+						}
+						$i=$i+1;
 				}
 			}
 		}
