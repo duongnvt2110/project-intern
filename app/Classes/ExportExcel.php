@@ -418,22 +418,27 @@ class exportExcel{
 	}
 	public function downImage($data){
 		$i=0;
-		foreach ($data['variant'] as $data) {
+		foreach ($data as $data) {
 			foreach ($data as $data) {
 				foreach ($data as $value) {
-					print_r($value);
+					// print_r($value);
 					print_r('<br>');
 					print_r('<br>');
 						// print_r($i);
 						print_r('<br');
-						preg_match('/(\d+)\-(\d+)-(\w+).+/',$value,$name);
+						if(preg_match('/(\d+)\-(\d+)-(\w+).+/',$value,$name)){
+							$name=$name[0];
+						}else{
+							preg_match('/([a-zA-Z0-9]+)\-([a-zA-Z0-9]+)\-([a-zA-Z0-9]+)\-([a-zA-Z0-9]+).+/',$value,$name);
+							$name=$name[0];
+						}
 						
 						$image=imagecreatefromjpeg('https:'.$value);
 					
-						$s=imagejpeg($image,base_path('/image/'.$name[0]));
+						$s=imagejpeg($image,base_path('/image/'.$name));
 						if($s==true){
 							print_r('1');
-							print_r($name[0]);
+							print_r($name);
 							print_r('<br>');	
 						}else{
 							print_r('2');

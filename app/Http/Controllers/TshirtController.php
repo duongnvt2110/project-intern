@@ -27,17 +27,17 @@ class TshirtController extends Controller
 		// retrieve value and write export
 		$data=array();
 		foreach ($product as $value) {
-
-			$data=[
-			// 'option_title1'=>$value['option_title1'],
-			// 'option_value1'=>json_decode($value['option_value1']),
-			// 'option_title2'=>$value['option_title2'],
-			// 'option_value2'=>json_decode($value['option_value2']),
-			// 'option_title3'=>$value['option_title3'],
-			// 'option_value3'=>json_decode($value['option_value3']),
-			'variant'=>json_decode($value['variant']),
-		];
+				// print_r($value);
+			// $data=[
+			// // 'option_title1'=>$value['option_title1'],
+			// // 'option_value1'=>json_decode($value['option_value1']),
+			// // 'option_title2'=>$value['option_title2'],
+			// // 'option_value2'=>json_decode($value['option_value2']),
+			// // 'option_title3'=>$value['option_title3'],
+			// // 'option_value3'=>json_decode($value['option_value3']),
+			// 'variant'=>json_decode($value['variant'])];
+			$export_file->downImage(json_decode($value['variant']));
 	}
-	$export_file->downImage($data);
+	
 	}
 }

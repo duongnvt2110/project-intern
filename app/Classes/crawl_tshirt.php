@@ -373,11 +373,14 @@ public function getOptionValue1($xpath){
 public function getOptionImageLink1($xpath){
 	$html_string = $xpath->query("//select[contains(@id,'shirtTypes')]/option/@value");
 	$i=0;
-	$image_option1=array();
+	$imageLink_option1=array();
 	foreach ($html_string as $value) {
 				// print_r($value);
 		$imageLink_option1[$i]='https://checkout.t-shirtat.com'.$value->textContent;
 		$i=$i+1;
+	}
+	if(empty($imageLink_option1)){
+		$imageLink_option1[0]='';
 	}
 	return $imageLink_option1;
 }
