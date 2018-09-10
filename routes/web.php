@@ -65,7 +65,7 @@ Route::post('test',[
 ]);
 Route::get('test',[
 	'as'=>'test',
-	'uses'=>'DBCrawlController@getbanner'
+	'uses'=>'TestController@test'
 ]);
 Route::get('import-db',[
 	'as'=>'import-db',

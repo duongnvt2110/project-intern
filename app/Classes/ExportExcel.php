@@ -129,6 +129,9 @@ class exportExcel{
 
 				for($j=1;$j<$max;$j++)
 				{
+					$objPHPExcel->getActiveSheet()
+					->setCellValue('B'.$n,$data['title'])
+					->setCellValue('Q'.$n,1);
 					for($x=1;$x<=$min;$x++){
 
 						if(isset($data['option_value1'][$x])){
@@ -332,45 +335,60 @@ class exportExcel{
 						$min=count($data['option_value2']);
 					}
 
-					for($j=0;$j<$max;$j++)
+					for($j=0;$j<$min;$j++)
 					{
-						for($x=0;$x<=$min;$x++){
-							if(isset($data['option_value2'][$j])){
-								if(isset($data['option_value3'][$x+1])){
-									$index1=$data['option_value1'][$k];
-									$index2=$data['option_value2'][$j];
-									$value=json_decode(json_encode($data['variant']), True);
-									for ($l = 0; $l <count($value) ; $l++) {
-										if(isset($value[$l][$index1][$index2])){
-											$imgVariant=$value[$l][$index1][$index2];
-											if(preg_match('/(\d+)\-(\d+)-(\w+).+/',$imgVariant,$name)){
-												$name=$name[0];
-											}else{
-												preg_match('/([a-zA-Z0-9]+)\-([a-zA-Z0-9]+)\-([a-zA-Z0-9]+)\-([a-zA-Z0-9]+).+/',$imgVariant,$name);
-												$name=$name[0];
+						for($x=0;$x<=$max;$x++){
+							if(isset($data['option_value3'][$x+1])){
+								if(isset($data['option_value2'][$j])){
+
+									$productTitle=$data['option_value1'][$k];
+									$productColor=$data['option_value2'][$j];
+									$productSize=trim($data['option_value3'][$x+1]);
+									// $test=$this->checkSize($productTitle,$this->convertSize($productSize));
+									// print_r($productTitle);
+									// print_r('<br>');
+									// print_r($productColor);
+									// print_r('<br>');
+									// print_r($productSize);
+									// print_r('<br>');
+									// print_r($test);
+									// print_r('<br>');	
+									if($this->checkSize($this->convertProducType($productTitle),$this->convertSize($productSize))=='true')
+									{
+										$value=json_decode(json_encode($data['variant']), true);
+										for ($l = 0; $l <count($value) ; $l++) {
+											if(isset($value[$l][$productTitle][$productColor])){
+												$imgVariant=$value[$l][$productTitle][$productColor];
+												if(preg_match('/(\d+)\-(\d+)-(\w+).+/',$imgVariant,$name)){
+													$name=$name[0];
+												}else{
+													preg_match('/([a-zA-Z0-9]+)\-([a-zA-Z0-9]+)\-([a-zA-Z0-9]+)\-([a-zA-Z0-9]+).+/',$imgVariant,$name);
+													$name=$name[0];
+												}
+												$url_shopify='https://cdn.shopify.com/s/files/1/0046/5784/0243/files/';
+												$img_src=$url_shopify.$name;
+												$objPHPExcel->getActiveSheet()
+												->setCellValue('A'.$n,$data['handle'].'-'.trim(str_replace(" ",'-',$this->convertProducType($productTitle)),'-'))
+												->setCellValue('E'.$n,$this->convertProducType($productTitle))
+												->setCellValue('F'.$n,$this->convertProducType($productTitle))
+												->setCellValue('G'.$n,'TRUE')
+												->setCellValue('D'.$n,'Zenladen')
+												->setCellValue('V'.$n,'TRUE')
+												->setCellValue('W'.$n,'TRUE')
+												->setCellValue('T'.$n,$this->getPrice($this->convertProducType($productTitle),$this->convertSize($productSize)))
+												->setCellValue('Y'.$n,$img_src)
+												->setCellValue('H'.$n,$data['option_title2'])
+												->setCellValue('I'.$n,$productColor)
+												->setCellValue('J'.$n,$data['option_title3'])
+												->setCellValue('K'.$n,$productSize)
+												->setCellValue('R'.$n,'deny')
+												->setCellValue('AR'.$n,$img_src)
+												->setCellValue('S'.$n,'manual');
+												$n=$n+1;
 											}
-											$url_shopify='https://cdn.shopify.com/s/files/1/0046/5784/0243/files/';
-											$img_src=$url_shopify.$name;
-											$objPHPExcel->getActiveSheet()
-											->setCellValue('A'.$n,$data['handle'].'-'.$this->convertProducType($data['option_value1'][$k]))
-											->setCellValue('E'.$n,$this->convertProducType($data['option_value1'][$k]))
-											->setCellValue('F'.$n,$this->convertProducType($data['option_value1'][$k]))
-											->setCellValue('G'.$n,'TRUE')
-											->setCellValue('D'.$n,'Zenladen')
-											->setCellValue('V'.$n,'TRUE')
-											->setCellValue('W'.$n,'TRUE')
-											->setCellValue('T'.$n,'17.95')
-											->setCellValue('Y'.$n,$img_src)
-											->setCellValue('H'.$n,$data['option_title2'])
-											->setCellValue('I'.$n,$data['option_value2'][$j])
-											->setCellValue('J'.$n,$data['option_title3'])
-											->setCellValue('K'.$n,$data['option_value3'][$x+1])
-											->setCellValue('R'.$n,'deny')
-											->setCellValue('AR'.$n,$img_src)
-											->setCellValue('S'.$n,'manual');
-											$n=$n+1;
 										}
 									}
+
 									
 								}
 							}
@@ -405,7 +423,9 @@ class exportExcel{
 		$objWriter->save($path);
 	}
 
-	function convertProducType($productTag){
+	public function convertProducType($productTag){
+
+
 		$product_type='';
 		if (preg_match('/Ladies\sTee/',$productTag)){
 			$product_type = "Ladies Custom";
@@ -417,13 +437,76 @@ class exportExcel{
 			$product_type = "Tank Top";
 		} else if (preg_match('/Guys\sV-Neck/',$productTag)) {
 			$product_type = "Mens Printed V-Neck T";
+		} else if (preg_match('/Longsleeve\sTee\sUnisex /',$productTag)) {
+			$product_type = "LS Ultra Cotton Tshirt";
+		} else if (preg_match('/Classic Guys\s\/\sUnisex Tee/',$productTag)) {
+			$product_type = "Custom Ultra Cotton";
+		} else if (preg_match('/Ladies\sV-Neck/',$productTag)) {
+			$product_type = "Womans Printed V-Neck T";
+		} else if (preg_match('/Premium\sFitted\sGuys\sTee/',$productTag) || preg_match('/Premium\sFitted\sLadies\sTee/',$productTag)){
+			$product_type = "Next Level Premium Short Sleeve Tee";
 		}else{
 			$product_type=$productTag;
 		}
 
 		return $product_type;
 	}
-
+	public function convertSize($size){
+		$product_size='';
+		if ($size=='S'){
+			$product_size = "Small";
+		} else if ($size =='M'){
+			$product_size = "Medium";
+		} else if ($size =='L'){
+			$product_size = "Large";
+		}else if ($size =='XL'){
+			$product_size = "X-Large";
+		}else if ($size =="XXL"){
+			$product_size = "XX-Large";
+		}else if ($size =="XXXL"){
+			$product_size = "XXX-Large";
+		}else if ($size =="XXXXL"){
+			$product_size = "4XL";
+		}else if ($size =="XXXXXL"){
+			$product_size = "5XL";
+		}
+		return $product_size;
+	}
+	public function getPrice($productTag,$size){
+		$file = @file_get_contents(app_path('/Classes/product_type.json'),"r");
+		$resultProduct= json_decode($file, true);
+		
+		$price='';
+		if(isset($resultProduct[$productTag])){
+			$productJson=$resultProduct[$productTag];
+			for($i=0;$i<count($productJson);$i++){
+				if($productJson[$i][0]==$size){
+					$price=$productJson[$i][1];
+				}
+			}
+		}else{
+			$price='17.95';
+		}
+		return $price;
+	}
+	public function checkSize($productTag,$size){
+		$file = @file_get_contents(app_path('/Classes/product_type.json'),"r");
+		$resultProduct= json_decode($file, true);
+		$prices='';
+		$checkValid='';
+		if(isset($resultProduct[$productTag])){
+			$productJson=$resultProduct[$productTag];
+			// print_r($productJson);
+			for($i=0;$i<count($productJson);$i++){
+				if($productJson[$i][0]==$size){
+					return 'true';
+				}
+			}
+		}else{
+			return 'true';
+		}
+		return 'false';
+	}
 	public function downImage($url_img){
 		if(preg_match('/(\d+)\-(\d+)-(\w+).+/',$url_img,$name)){
 			$name=$name[0];
@@ -450,8 +533,8 @@ class exportExcel{
 		$text = new \PhpOffice\PhpSpreadsheet\Reader\Csv();
 		$objPHPExcel = $text->load($path);
 		$objPHPExcel->setActiveSheetIndex(0);
-		$row = $objPHPExcel->getActiveSheet()->getHighestRow();
-		$i=$row;
+		// $row = $objPHPExcel->getActiveSheet()->getHighestRow();
+		$i=1;
 
 		$objPHPExcel->getActiveSheet()
 	// Row handle
@@ -547,6 +630,9 @@ class exportExcel{
 		->setCellValue('AS'.$i,'Variant Weight Unit')
 	//  Variant Tax Code
 		->setCellValue('AT'.$i,'Variant Tax Code');
+
+		$objWriter = new \PhpOffice\PhpSpreadsheet\Writer\Csv($objPHPExcel);
+		$objWriter->save($path);
 	}
 
 	public function createExcel($path){
