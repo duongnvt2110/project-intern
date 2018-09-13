@@ -9,6 +9,7 @@ class mycurl {
 	protected $_maxRedirects; 
 	protected $_cookieFileLocation = './cookie.txt'; 
 	protected $_post; 
+	protected $_get;
 	protected $_postFields; 
 	protected $_referer; 
 
@@ -21,6 +22,8 @@ class mycurl {
 	protected $_contentType;
 	protected $_proxyinfo;
 	protected $_ip;
+	protected $_request;
+	protected $_authorization;
 	public    $authentication = 0; 
 	public    $auth_name      = ''; 
 	public    $auth_pass      = ''; 
@@ -37,7 +40,7 @@ class mycurl {
 		$this->auth_pass = $pass; 
 	} 
 
-	public function __construct($url,$followlocation = true,$timeOut = 30,$maxRedirecs = 4,$binaryTransfer = false,$includeHeader = false,$noBody = false,$contentType='Content-Type: application/x-www-form-urlencoded',$proxyinfo=null,$ip=null) 
+	public function __construct($url,$followlocation = true,$timeOut = 30,$maxRedirecs = 4,$binaryTransfer = false,$includeHeader = false,$noBody = false,$contentType='Content-Type: application/x-www-form-urlencoded',$proxyinfo=null,$ip=null,$authorization=null) 
 	{ 
 		$this->_url = $url; 
 		$this->_followlocation = $followlocation; 
@@ -50,6 +53,7 @@ class mycurl {
 		$this->_cookieFileLocation = dirname(__FILE__).'/cookie.txt'; 
 		$this->_proxyinfo=$proxyinfo;
 		$this->_ip=$ip;
+		$this->_authorization=$authorization;
 	} 
 
 	public function setReferer($referer){ 
@@ -82,42 +86,57 @@ class mycurl {
 	public function setIp($ip){
 		$this->_ip=$ip;
 	}
+	public function setGet($request){
+		$this->_get=true;
+		$this->_request=$request;
+	}
+	public function setAuthentication($authorization){
+		$this->_authorization=$authorization;
+	}
 	public function createCurl($url = 'nul') 
 	{ 
+
+
 		if($url != 'nul'){ 
 			$this->_url = $url; 
 		} 
 
 		$s = curl_init(); 
-
+		
 		curl_setopt($s,CURLOPT_URL,$this->_url);
+		curl_setopt($s,CURLOPT_RETURNTRANSFER,true);
+		if($this->_get){
+			curl_setopt($s, CURLOPT_CUSTOMREQUEST,$this->_request);
+		}
 		curl_setopt($s, CURLOPT_HTTPHEADER, array(	
 											// 'Accept-Encoding: gzip',
 			$this->_contentType,
-                                            // 'X-Requested-With: XMLHttpRequest;',
+			$this->_authorization,
+			$this->_referer,
 			'Connection: Keep-Alive'
 		)); 
-		// curl_setopt($s, CURLOPT_HTTPHEADER,array("Expect:  ")); 
 		
 		
 		curl_setopt($s,CURLOPT_TIMEOUT,$this->_timeout); 
 		curl_setopt($s,CURLOPT_MAXREDIRS,$this->_maxRedirects); 
-		curl_setopt($s,CURLOPT_RETURNTRANSFER,true); 
 		curl_setopt($s,CURLOPT_FOLLOWLOCATION,$this->_followlocation); 
 		curl_setopt($s,CURLOPT_COOKIEJAR,$this->_cookieFileLocation); 
 		curl_setopt($s,CURLOPT_COOKIEFILE,$this->_cookieFileLocation); 
-
+		
 
 		// Sock fake ip
-		curl_setopt($s, CURLOPT_PROXYTYPE, CURLPROXY_SOCKS5);
-		curl_setopt($s, CURLOPT_PROXY, $this->_proxyinfo[0]);
-		curl_setopt($s, CURLOPT_PROXYPORT, $this->_proxyinfo[1]);
-		curl_setopt($s, CURLOPT_HTTPPROXYTUNNEL, 0);
-		curl_setopt($s,	CURLOPT_HTTPHEADER, array('REMOTE_ADDR: '.$this->_ip, 'X_FORWARDED_FOR: '.$this->_ip));
+		// curl_setopt($s, CURLOPT_PROXYTYPE, CURLPROXY_SOCKS5);
+		// curl_setopt($s, CURLOPT_PROXY, $this->_proxyinfo[0]);
+		// curl_setopt($s, CURLOPT_PROXYPORT, $this->_proxyinfo[1]);
+		// curl_setopt($s, CURLOPT_HTTPPROXYTUNNEL, 0);
+		// curl_setopt($s,	CURLOPT_HTTPHEADER, array('REMOTE_ADDR: '.$this->_ip, 'X_FORWARDED_FOR: '.$this->_ip));
 		// curl_setopt($s,CURLOPT_ENCODING ,"gzip");
 		if($this->authentication == 1){ 
 			curl_setopt($s, CURLOPT_USERPWD, $this->auth_name.':'.$this->auth_pass); 
 		} 
+
+		
+
 		if($this->_post) 
 		{ 
 			curl_setopt($s,CURLOPT_POST,true); 

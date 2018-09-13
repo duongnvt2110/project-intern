@@ -262,7 +262,7 @@ public function getDescription($xpath){
 	$description='<div>
 	HOW TO ORDER :<br>
 	1. Select the style and color you want<br>
-	2. Click “Add to Cart”<br>
+	2. Click "Add to Cart"<br>
 	3. Select size and quantity<br>
 	4. Enter shipping and billing information<br>
 	5. Done! Simple as that!</p>

@@ -522,6 +522,13 @@
                                                             <span class="selected"></span>
                                                         </a>
                                                     </li>
+                                                      <li class="nav-item start active open">
+                                                        <a href="{{route('viralstyle')}}" class="nav-link ">
+                                                            <i class="icon-bar-chart"></i>
+                                                            <span class="title">ViralStyle</span>
+                                                            <span class="selected"></span>
+                                                        </a>
+                                                    </li>
                                                     <!-- end sub menu -->
                                                 </ul>
                                             </li>

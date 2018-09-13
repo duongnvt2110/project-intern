@@ -6,8 +6,14 @@ use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Pagination\Paginator;
 use App\product;
 use App\esty_product;
-
+use App\viralstyle_product;
 class exportExcel{
+
+
+
+	// -------------------------------------------------------------------------
+	// -------------------------------------------------------------------------
+	// ----------------------------------- Export ESTY ----------------
 
 	public function writeEstyExcel($data,$path){
 		ini_set('max_execution_time', 1800);
@@ -210,12 +216,19 @@ class exportExcel{
 		return $option1;
 	}
 
-	// wite tshiart
+	
+	// -------------------------------------------------------------------------
+	// -------------------------------------------------------------------------
+	// ----------------------------------- End Export ESTY----------------
+	// -------------------------------------------------------------------------
+	// -------------------------------------------------------------------------
+	// ----------------------------------- Export Viral Style----------------
 
 	public function writeTshirtatExcel($data,$path){
 		ini_set('max_execution_time', 1800);
+		
 		if(!file_exists($path))
-		{
+		{	$this->removeAllFile();
 			$this->createExcel($path);
 			$this->writeFirstRow($path);
 			// chmod($path,777);
@@ -230,11 +243,11 @@ class exportExcel{
 	// Row handle
 		->setCellValue('A'.$i,$data['handle'].'-'.$data['option_value1'][0])
 	// Row title
-		->setCellValue('B'.$i,$data['title'])
+		// ->setCellValue('B'.$i,trim($data['title']))
 	// Row title
 	// ->setCellValue('AU'.$i,$data['asin'])
 	// Row title
-		->setCellValue('C'.$i,$data['description'])
+		
 	// Row Vendor
 		->setCellValue('D'.$i,$data['category'])
 	// Row type
@@ -250,7 +263,7 @@ class exportExcel{
 	// Row variants tracker
 	// ->setCellValue('P'.$i,1)
 	// Row vaiants quantity
-		->setCellValue('Q'.$i,1)
+		// ->setCellValue('Q'.$i,1)
 
 	// Row variants Policy
 		->setCellValue('R'.$i,'deny')
@@ -319,10 +332,8 @@ class exportExcel{
 		$n=$i;
 	// write option 
 		for($k=0;$k<count($data['option_value1']);$k++){
-			$objPHPExcel->getActiveSheet()
-			->setCellValue('B'.$n,$data['title'])
-			->setCellValue('Q'.$n,1);
-
+			$count=0;
+			$title=ucwords(trim($data['title']).' '.$this->convertProducType($data['option_value1'][$k]));
 			if(!empty($data['option_value2']))
 			{
 				if(!empty($data['option_value3'])){	
@@ -344,17 +355,18 @@ class exportExcel{
 									$productTitle=$data['option_value1'][$k];
 									$productColor=$data['option_value2'][$j];
 									$productSize=trim($data['option_value3'][$x+1]);
-									// $test=$this->checkSize($productTitle,$this->convertSize($productSize));
-									// print_r($productTitle);
-									// print_r('<br>');
-									// print_r($productColor);
-									// print_r('<br>');
-									// print_r($productSize);
-									// print_r('<br>');
-									// print_r($test);
-									// print_r('<br>');	
 									if($this->checkSize($this->convertProducType($productTitle),$this->convertSize($productSize))=='true')
 									{
+										$price=$this->getPrice($this->convertProducType($productTitle),$this->convertSize($productSize));
+										if($count==0){
+											$description=$this->createDescription($title,$price,$data['description']);
+											// print_r($description);
+											$objPHPExcel->getActiveSheet()
+											->setCellValue('B'.$n,$title)
+											->setCellValue('Q'.$n,1)
+											->setCellValue('C'.$n,$description);
+											$count=1;
+										}
 										$value=json_decode(json_encode($data['variant']), true);
 										for ($l = 0; $l <count($value) ; $l++) {
 											if(isset($value[$l][$productTitle][$productColor])){
@@ -368,14 +380,14 @@ class exportExcel{
 												$url_shopify='https://cdn.shopify.com/s/files/1/0046/5784/0243/files/';
 												$img_src=$url_shopify.$name;
 												$objPHPExcel->getActiveSheet()
-												->setCellValue('A'.$n,$data['handle'].'-'.trim(str_replace(" ",'-',$this->convertProducType($productTitle)),'-'))
+												->setCellValue('A'.$n,$data['handle'].'-'.strtolower(trim(str_replace(" ",'-',$this->convertProducType($productTitle)),'-')))
 												->setCellValue('E'.$n,$this->convertProducType($productTitle))
 												->setCellValue('F'.$n,$this->convertProducType($productTitle))
 												->setCellValue('G'.$n,'TRUE')
 												->setCellValue('D'.$n,'Zenladen')
 												->setCellValue('V'.$n,'TRUE')
 												->setCellValue('W'.$n,'TRUE')
-												->setCellValue('T'.$n,$this->getPrice($this->convertProducType($productTitle),$this->convertSize($productSize)))
+												->setCellValue('T'.$n,$price)
 												->setCellValue('Y'.$n,$img_src)
 												->setCellValue('H'.$n,$data['option_title2'])
 												->setCellValue('I'.$n,$productColor)
@@ -423,6 +435,232 @@ class exportExcel{
 		$objWriter->save($path);
 	}
 
+	// -------------------------------------------------------------------------
+	// -------------------------------------------------------------------------
+	// ----------------------------------- End Export Tshirtat----------------
+
+	// -------------------------------------------------------------------------
+	// -------------------------------------------------------------------------
+	// ----------------------------------- Export Viral Style----------------
+
+	public function writeViralExcel($data,$path){
+		ini_set('max_execution_time', 1800);
+
+		if(!file_exists($path))
+		{
+			$this->removeAllFile();
+			$this->createExcel($path);
+			$this->writeFirstRow($path);
+			// chmod($path,777);
+		}
+		$text = new \PhpOffice\PhpSpreadsheet\Reader\Csv();
+		$objPHPExcel = $text->load($path);
+		$objPHPExcel->setActiveSheetIndex(0);
+		$row = $objPHPExcel->getActiveSheet()->getHighestRow()+1;
+		$i=$row;
+
+		$objPHPExcel->getActiveSheet()
+	// Row handle
+		->setCellValue('A'.$i,$data['handle'].'-'.$data['option_value1'][0])
+	// Row title
+		// ->setCellValue('B'.$i,trim($data['title']))
+	// Row title
+	// ->setCellValue('AU'.$i,$data['asin'])
+	// Row title
+		
+	// Row Vendor
+		->setCellValue('D'.$i,$data['category'])
+	// Row type
+	// ->setCellValue('E'.$i,$data['type'])
+	// Row tags
+	// ->setCellValue('F'.$i,$data['tags'])
+	// Row Published
+	// ->setCellValue('G'.$i,'true')
+	// Row variants gram
+	// ->setCellValue('O'.$i,$data['variants'][0]['grams'])
+	// Row variants sku
+	// ->setCellValue('N'.$i,$data['variants'][0]['sku'])
+	// Row variants tracker
+	// ->setCellValue('P'.$i,1)
+	// Row vaiants quantity
+		// ->setCellValue('Q'.$i,1)
+
+	// Row variants Policy
+		->setCellValue('R'.$i,'deny')
+	// Row  variants servicefullment
+		->setCellValue('S'.$i,'manual')
+	// Row Variant Price
+		->setCellValue('T'.$i,'17')
+	// Row Variant Compare At Price
+	// ->setCellValue('U'.$i,$data['variants'][0]['compare_at_price'])
+	// Row Variant Requires Shipping
+	// ->setCellValue('V'.$i,$data['variants'][0]['requires_shipping'])
+	// Row Variant Taxable
+	// ->setCellValue('W'.$i,$data['variants'][0]['taxable'])
+	// Row Variant Barcode
+	// ->setCellValue('X'.$i,$data['variants'][0]['barcode'])
+	// Row Image Src
+		// ->setCellValue('H'.$i,'title')
+		// ->setCellValue('I'.$i,'default')
+		// ->setCellValue('Y'.$i,$data['image_url'])
+	// Row Image Position
+	// ->setCellValue('Z'.$i,$data['images'][0]['position'])
+	// Row Image Alt Text
+	// ->setCellValue('AA'.$i,$data['images'][0]['alt'])
+	// Row Gift Card
+	// ->setCellValue('AB'.$i,$data['images'][0]['alt'])
+	// Row SEO Title
+	// ->setCellValue('AC'.$i,$data['images'][0]['alt'])
+	// Row SEO Description
+	// ->setCellValue('AD'.$i,$data['images'][0]['alt'])
+	// Row Google Shopping / Google Product Category	
+	// ->setCellValue('AE'.$i,$data['images'][0]['alt'])
+	// Row Google Shopping / Gender
+	// ->setCellValue('AF'.$i,$data['images'][0]['alt'])
+	// Row Google Shopping / Age Group
+	// ->setCellValue('AG'.$i,$data['images'][0]['alt'])
+	// Row Google Shopping / MPN
+	// ->setCellValue('AH'.$i,$data['images'][0]['alt'])
+	// Row Google Shopping / AdWords Grouping
+	// ->setCellValue('AI'.$i,$data['images'][0]['alt'])
+	// Row Google Shopping / AdWords Labels
+	// ->setCellValue('AJ'.$i,'false')
+	// Row Google Shopping / Condition
+	// ->setCellValue('AK'.$i,$data['images'][0]['alt'])
+	// Row Google Shopping / Custom Product
+	// ->setCellValue('AL'.$i,$data['images'][0]['alt'])
+	// Row Google Shopping / Custom Label 0
+	// ->setCellValue('AM'.$i,$data['images'][0]['alt'])
+	// Row Google Shopping / Custom Label 1
+	// ->setCellValue('AN'.$i,$data['images'][0]['alt'])
+	// Row Google Shopping / Custom Label 2
+	// ->setCellValue('AO'.$i,$data['images'][0]['alt'])
+	// Row Google Shopping / Custom Label 3
+	// ->setCellValue('AP'.$i,$data['images'][0]['alt'])
+	// Row Google Shopping / Custom Label 4
+	// Variant Image
+	// ->setCellValue('AQ'.$i,$data['images'][0]['alt'])
+	// Row title
+		// 8
+		->setCellValue('AU'.$i,$data['url_product'])
+		->setCellValue('AV'.$i,$data['date_crawled']);
+		// ->setCellValue('AW'.$i,$data['seller_name']);
+	// Row Variant Weight Unit
+	// ->setCellValue('AS'.$i,$data['variants'][0]['weight_unit']);
+	//  Variant Tax Code
+	// ->setCellValue('AT'.$i,$data['variants'][0]['weight_unit']);
+		$n=$i;
+	// write option 
+
+		for($k=0;$k<count($data['option_value1']);$k++){
+			$count=0;
+			$title=ucwords(trim($data['title']).' '.$this->convertProducType($data['option_value1'][$k]));
+			$data['option_value3']=$this->getSize($this->convertProducType($data['option_value1'][$k]));
+			if(!empty($data['option_value2']))
+			{
+				if(!empty($data['option_value3'])){	
+
+					if(count($data['option_value2'])>count($data['option_value3'])){
+						$max=count($data['option_value2']);
+						$min=count($data['option_value3']);
+					}else{
+						$max=count($data['option_value3']);
+						$min=count($data['option_value2']);
+					}
+
+					for($j=0;$j<$max;$j++)
+					{
+						for($x=0;$x<=$min;$x++){
+							if(isset($data['option_value3'][$x])){
+								if(isset($data['option_value2'][$j])){
+
+									$productTitle=$data['option_value1'][$k];
+									$productColor=$data['option_value2'][$j];
+									$productSize=$data['option_value3'][$x];
+									if($this->checkSize($this->convertProducType($productTitle),$productSize)=='true')
+									{
+										$price=$this->getPrice($this->convertProducType($productTitle),$productSize);
+										if($count==0){
+											$description=$this->createDescription($title,$price,$data['description']);
+											// print_r($description);
+											$objPHPExcel->getActiveSheet()
+											->setCellValue('B'.$n,$title)
+											->setCellValue('Q'.$n,1)
+											->setCellValue('E'.$n,$this->convertProducType($productTitle))
+											->setCellValue('F'.$n,$this->convertProducType($productTitle))
+											->setCellValue('C'.$n,$description);
+											$count=1;
+										}
+										$value=json_decode(json_encode($data['variant']), true);
+										for ($l = 0; $l <count($value) ; $l++) {
+											if(isset($value[$l][$productTitle][$productColor])){
+												$imgVariant=$value[$l][$productTitle][$productColor];
+												if(preg_match('/(\w+)-(\w+)-(\w+)-(front.+)/',$imgVariant,$name)){
+													$name=$name[0];
+												}else if(preg_match('/(\w+)\-(\w+)\-(\w+)\-(\w+)\-(\w+_.+)/',$imgVariant,$name)){
+													$name=$name[0];
+												}
+												$url_shopify='https://cdn.shopify.com/s/files/1/0046/5784/0243/files/';
+												$img_src=$url_shopify.$name;
+												$objPHPExcel->getActiveSheet()
+												->setCellValue('A'.$n,strtolower($data['handle']).'-'.strtolower(trim(str_replace(" ",'-',$this->convertProducType($productTitle)),'-')))
+												->setCellValue('G'.$n,'TRUE')
+												->setCellValue('O'.$n,'600')
+												->setCellValue('D'.$n,'Zenladen')
+												->setCellValue('V'.$n,'TRUE')
+												->setCellValue('W'.$n,'TRUE')
+												->setCellValue('T'.$n,$price)
+												->setCellValue('Y'.$n,$img_src)
+												->setCellValue('H'.$n,$data['option_title2'])
+												->setCellValue('I'.$n,$productColor)
+												->setCellValue('J'.$n,$data['option_title3'])
+												->setCellValue('K'.$n,$productSize)
+												->setCellValue('R'.$n,'deny')
+												->setCellValue('AB'.$n,'FALSE')
+												->setCellValue('AE'.$n,'apparel & accessories > clothing > shirts & tops')
+												->setCellValue('AF'.$n,'unisex')
+												->setCellValue('AG'.$n,'adult')
+												->setCellValue('AJ'.$n,'T-Shirt')
+												->setCellValue('AK'.$n,'T-Shirt')
+												->setCellValue('AL'.$n,'new')
+												->setCellValue('AM'.$n,'TRUE')
+												->setCellValue('AR'.$n,$img_src)
+												->setCellValue('S'.$n,'manual');
+												$n=$n+1;
+											}
+										}
+									}
+
+									
+								}
+							}
+
+						}
+					}
+				}	
+			}else{
+				$objPHPExcel->getActiveSheet()
+				->setCellValue('T'.$i,$data['prices'])
+				->setCellValue('H'.$n,'title')
+				->setCellValue('I'.$n,'default');
+
+			}
+		}
+		
+		$objWriter = new \PhpOffice\PhpSpreadsheet\Writer\Csv($objPHPExcel);
+		$objWriter->save($path);
+	}
+
+
+	// --------------------------End Export Viral Style----------------------
+	// -------------------------------------------------------------------------
+	// -------------------------------------------------------------------------
+
+
+	// ------------------------ Funtion Support-------
+	// -------------------------------------------------------------------------
+
+	// 
 	public function convertProducType($productTag){
 
 
@@ -433,13 +671,13 @@ class exportExcel{
 			$product_type = "Pullover Hoodie 8 oz";
 		} else if (preg_match('/Sweatshirt/',$productTag)) {
 			$product_type = "Printed Crewneck Pullover Sweatshirt 8 oz";
-		} else if (preg_match('/Tank\sTop/',$productTag)) {
+		} else if (preg_match('/Men\'s\sTank\sTop/',$productTag)) {
 			$product_type = "Tank Top";
 		} else if (preg_match('/Guys\sV-Neck/',$productTag)) {
 			$product_type = "Mens Printed V-Neck T";
 		} else if (preg_match('/Longsleeve\sTee\sUnisex /',$productTag)) {
 			$product_type = "LS Ultra Cotton Tshirt";
-		} else if (preg_match('/Classic Guys\s\/\sUnisex Tee/',$productTag)) {
+		} else if (preg_match('/Unisex Tee/',$productTag)) {
 			$product_type = "Custom Ultra Cotton";
 		} else if (preg_match('/Ladies\sV-Neck/',$productTag)) {
 			$product_type = "Womans Printed V-Neck T";
@@ -450,6 +688,29 @@ class exportExcel{
 		}
 
 		return $product_type;
+	}
+	public function  createDescription($title,$price,$description){
+
+		$description_convert=preg_replace('/\“/','"',$description);
+		$description_convert=preg_replace('/\”/','"',$description_convert);
+		$text='<p> New Arrival '.$title.' only '.$price .'<p><br>';
+		$description=$text.$description_convert;
+		return $description;
+	}
+	public function getSize($productTag){
+		$file = @file_get_contents(app_path('/Classes/product_type.json'),"r");
+		$resultProduct= json_decode($file, true);
+		
+		$option_value3=array();
+		if(isset($resultProduct[$productTag])){
+			$productJson=$resultProduct[$productTag];
+			for($i=0;$i<count($productJson);$i++){
+				if(isset($productJson[$i][0])){
+					$option_value3[]=$productJson[$i][0];
+				}
+			}
+		}
+		return $option_value3;
 	}
 	public function convertSize($size){
 		$product_size='';
@@ -472,6 +733,16 @@ class exportExcel{
 		}
 		return $product_size;
 	}
+	// public function convertTitle($title){
+	// 	 // [  ' " <space> - _ $!# ]
+		
+	// 	if(preg_match('/\'/',$title) || preg_match('/\"/',$title) || preg_match('/\-/',$title) || preg_match('/\_/',$title) || preg_match('/\$/',$title)|| preg_match('/\!/',$title) || preg_match('/\$/',$title)){
+	// 		$productTitle=$title;
+	// 	}else{
+	// 		$productTitle=preg_replace('/\w/',' ',$title);
+	// 	}
+	// 	return $productTitle;
+	// }
 	public function getPrice($productTag,$size){
 		$file = @file_get_contents(app_path('/Classes/product_type.json'),"r");
 		$resultProduct= json_decode($file, true);
@@ -503,32 +774,78 @@ class exportExcel{
 				}
 			}
 		}else{
-			return 'true';
+			return 'false';
 		}
 		return 'false';
 	}
-	public function downImage($url_img){
-		if(preg_match('/(\d+)\-(\d+)-(\w+).+/',$url_img,$name)){
-			$name=$name[0];
+	public function downImageTshirtat($url_img){
+		if($url_img !=''){
+			if(preg_match('/(\d+)\-(\d+)-(\w+).+/',$url_img,$name)){
+				$name=$name[0];
+			}else{
+				preg_match('/([a-zA-Z0-9]+)\-([a-zA-Z0-9]+)\-([a-zA-Z0-9]+)\-([a-zA-Z0-9]+).+/',$url_img,$name);
+				$name=$name[0];
+			}
+			ini_set('max_execution_time',1800);
+			$image=@imagecreatefromjpeg('https:'.$url_img);
+			if($image){
+				imagejpeg($image,base_path('/image/'.$name));
+				print_r('<br>');
+				print_r($name);
+				print_r('<br>');
+			}else{
+				print_r('<br>');
+				print_r('error http request '.$name);
+				print_r('<br>');
+			}
 		}else{
-			preg_match('/([a-zA-Z0-9]+)\-([a-zA-Z0-9]+)\-([a-zA-Z0-9]+)\-([a-zA-Z0-9]+).+/',$url_img,$name);
-			$name=$name[0];
+			print_r('url wrrong');
 		}
-		ini_set('max_execution_time',1800);
-		$image=@imagecreatefromjpeg('https:'.$url_img);
-		if($image){
-			imagejpeg($image,base_path('/image/'.$name));
-			print_r('<br>');
-			print_r($name);
-			print_r('<br>');
+		
+	}
+	public function downImageViral($url_img){
+		if($url_img !=''){
+			if(preg_match('/(\w+)-(\w+)-(\w+)-(front.+)/',$url_img,$name)){
+				$name=$name[0];
+			}else if(preg_match('/(\w+)\-(\w+)\-(\w+)\-(\w+)\-(\w+_.+)/',$url_img,$name)){
+				$name=$name[0];
+			}else{
+				print_r($url_img);
+				print_r('<br>');
+			}
+			// print_r($name);
+			// print_r('<br>');
+			ini_set('max_execution_time',1800);
+			$image=@imagecreatefromjpeg($url_img);
+			if($image){
+				imagejpeg($image,base_path('/image/'.$name));
+				print_r('<br>');
+				print_r($name);
+				print_r('<br>');
+			}else{
+				print_r('<br>');
+				print_r('error http request '.$name);
+				print_r('<br>');
+			}
 		}else{
-			print_r('<br>');
-			print_r('error http request '.$name);
-			print_r('<br>');
+			print_r('url wrrong');
 		}
 		
 	}
 
+	public function removeAllFile(){
+		$name_file='export/*';
+		$url_file=base_path($name_file);
+		if(glob($url_file)){
+			$files = glob($url_file); // get all file names
+		foreach($files as $file){ // iterate files
+			if(is_file($file)){
+		    unlink($file); // delete file
+		}
+	}
+
+}
+}
 	public function writeFirstRow($path){
 		$text = new \PhpOffice\PhpSpreadsheet\Reader\Csv();
 		$objPHPExcel = $text->load($path);
@@ -568,8 +885,6 @@ class exportExcel{
 		->setCellValue('P'.$i,'Variant Inventory Tracker')
 	//Row vaiants quantity
 		->setCellValue('Q'.$i,'Variant Inventory Qty')
-
-
 	// Row variants Policy
 		->setCellValue('R'.$i,'Variant Inventory Policy')
 	// Row  variants servicefullment
@@ -603,28 +918,28 @@ class exportExcel{
 	//Row Google Shopping / Age Group
 		->setCellValue('AG'.$i,'Google Shopping / Age Group')
 	//Row Google Shopping / MPN
-		->setCellValue('AH'.$i,'Google Shopping / Age Group')
+		->setCellValue('AH'.$i,'Google Shopping / MPN')
 	//Row Google Shopping / AdWords Grouping
-		->setCellValue('AI'.$i,'Google Shopping / MPN')
+		->setCellValue('AI'.$i,'Google Shopping / AdWords Grouping')
 	//Row Google Shopping / AdWords Labels
-		->setCellValue('AJ'.$i,'Google Shopping / AdWords Grouping')
+		->setCellValue('AJ'.$i,'Google Shopping / AdWords Labels')
 	//Row Google Shopping / Condition
-		->setCellValue('AK'.$i,'Google Shopping / AdWords Labels')
+		->setCellValue('AK'.$i,'Google Shopping / Condition')
 	//Row Google Shopping / Custom Product
-		->setCellValue('AL'.$i,'Google Shopping / Condition')
+		->setCellValue('AL'.$i,'Google Shopping / Custom Product')
 	//Row Google Shopping / Custom Label 0
 
-		->setCellValue('AM'.$i,'Google Shopping / Custom Product')
+		->setCellValue('AM'.$i,'Google Shopping / Custom Label 0')
 	//Row Google Shopping / Custom Label 1
-		->setCellValue('AN'.$i,'Google Shopping / Custom Label 0')
+		->setCellValue('AN'.$i,'Google Shopping / Custom Label 1')
 	//Row Google Shopping / Custom Label 2
-		->setCellValue('AO'.$i,'Google Shopping / Custom Label 1')
+		->setCellValue('AO'.$i,'Google Shopping / Custom Label 2')
 	//Row Google Shopping / Custom Label 3
-		->setCellValue('AP'.$i,'Google Shopping / Custom Label 2')
+		->setCellValue('AP'.$i,'Google Shopping / Custom Label 3')
 	//Row Google Shopping / Custom Label 4
 
 	//Variant Image
-		->setCellValue('AQ'.$i,'Google Shopping / Custom Label 3')
+		->setCellValue('AQ'.$i,'Google Shopping / Custom Label 4')
 		->setCellValue('AR'.$i,'Variant Image')
 	// Row Variant Weight Unit
 		->setCellValue('AS'.$i,'Variant Weight Unit')

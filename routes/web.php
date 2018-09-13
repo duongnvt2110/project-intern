@@ -119,6 +119,18 @@ Route::get('crawl-tshirt',[
 	'as'=>'crawl-tshirt',
 	'uses'=>'CrawlTshirtController@crawlTshirt'
 ]);
+Route::get('viralstyle',[
+	'as'=>'viralstyle',
+	'uses'=>'ViralStyleProductController@loadViralProduct'
+]);
+Route::get('load-viralstyle',[
+	'as'=>'load-tshirt',
+	'uses'=>'CrawlViralStyleController@loadViralStyle'
+]);
+Route::get('crawl-viralstyle',[
+	'as'=>'crawl-tshirt',
+	'uses'=>'CrawlViralStyleController@crawViralStyle'
+]);
 Route::get('down-image',[
 	'as'=>'down-image',
 	'uses'=>'TshirtController@loadDownImage'
@@ -127,4 +139,11 @@ Route::get('save-image',[
 	'as'=>'save-image',
 	'uses'=>'TshirtController@downImage'
 ]);
-
+Route::get('down-image-viral',[
+	'as'=>'down-image-viral',
+	'uses'=>'ViralStyleProductController@loadDownImage'
+]);
+Route::get('save-image-viral',[
+	'as'=>'save-image',
+	'uses'=>'ViralStyleProductController@downImage'
+]);
